@@ -1,5 +1,5 @@
 /**
- * Simple arcade drive for two motors and nothing else
+ * Hardware initialization for 4962 robot
  */
 
 package org.firstinspires.ftc.teamcode;
@@ -24,7 +24,7 @@ public class Hardware4962 {
     public DcMotor leftbackMotor = null;
     public DcMotor intakeMotor = null;
     public DcMotor elevatorMotor = null;
-    public Servo blueButton = null;
+    public Servo button = null;
     public OpticalDistanceSensor odsSensor = null;
 
     /* local OpMode members. */
@@ -50,11 +50,11 @@ public class Hardware4962 {
         intakeMotor = hwMap.dcMotor.get("motor intake");
         elevatorMotor = hwMap.dcMotor.get("motor elevator");
         odsSensor = hwMap.opticalDistanceSensor.get("ods");
-        blueButton = hwMap.servo.get("blue");
+        button = hwMap.servo.get("blue");
 
         rightfrontMotor.setDirection(DcMotor.Direction.REVERSE);
         rightbackMotor.setDirection(DcMotor.Direction.REVERSE);
-        //blueButton.setPosition(0);
+        button.setPosition(0);
         // Set all motors to zero power
 
         StopDriving();

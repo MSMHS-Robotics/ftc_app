@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import java.text.DecimalFormat;
 
@@ -26,7 +27,7 @@ import java.text.DecimalFormat;
  *
  */
 @TeleOp(name = "Test Robot 4962 - auto", group = "Concept")
-//@Disabled
+@Disabled
 public class TestRobot4962_simpleauto extends LinearOpMode {
 
 	Hardware4962 robot  = new Hardware4962();

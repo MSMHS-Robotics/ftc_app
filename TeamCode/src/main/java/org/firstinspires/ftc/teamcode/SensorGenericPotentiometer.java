@@ -10,6 +10,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * Example program to read data from a generic 3-pin Potentiometer.
@@ -24,7 +25,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
  *
  */
 @TeleOp(name = "Sensor: Generic Potentiometer", group = "Sensor")
-//@Disabled
+@Disabled
 public class SensorGenericPotentiometer extends LinearOpMode {
 
 

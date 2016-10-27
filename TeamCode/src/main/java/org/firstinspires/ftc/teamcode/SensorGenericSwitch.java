@@ -10,6 +10,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * Example program to read data from a generic switch.
@@ -21,7 +22,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
  *
  */
 @TeleOp(name = "Sensor: Generic Switch", group = "Sensor")
-//@Disabled
+@Disabled
 public class SensorGenericSwitch extends LinearOpMode {
 
     /*

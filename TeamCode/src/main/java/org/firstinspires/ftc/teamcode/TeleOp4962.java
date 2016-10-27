@@ -1,6 +1,6 @@
 /**
  *
- * Simple arcade drive for two motors and nothing else
+ * TeleOp using 4962 hardware
  *
  */
 
@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.util.Range;
 //@Disabled
 public class TeleOp4962 extends LinearOpMode {
 
-    Hardware4962 robot;		// this is our hardware class
+    Hardware4962 robot= new Hardware4962();		// this is our hardware class
 
 	@Override
 	public void runOpMode() throws InterruptedException {
@@ -44,8 +44,8 @@ public class TeleOp4962 extends LinearOpMode {
 			//float direction = gamepad1.left_stick_x;
 			//float right = throttle + direction;
 			//float left = throttle - direction;
-			float left = -gamepad1.left_stick_y;
-			float right = -gamepad1.right_stick_y;
+			float left = gamepad1.left_stick_y;
+			float right = gamepad1.right_stick_y;
 			boolean intakeIn = gamepad1.left_bumper;
 			boolean intakeOut = gamepad1.right_bumper;
 			float elevatorPower = gamepad2.right_stick_y;
@@ -76,6 +76,7 @@ public class TeleOp4962 extends LinearOpMode {
 			telemetry.addData("Text", "*** Robot Data***");
 			telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
 			telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
+			telemetry.addData("elevator", "e pwr = " + String.format("%.2f", elevatorPower));
 			telemetry.update();
 			idle();
 		}

@@ -1,6 +1,6 @@
 /**
  *
- * Auto using 4962 Hardware
+ * Simple arcade drive for two motors and nothing else
  *
  */
 
@@ -17,7 +17,6 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.text.DecimalFormat;
@@ -26,9 +25,9 @@ import java.text.DecimalFormat;
 /**
  *
  */
-@Autonomous(name = "Test Robot 4962 - auto test_red", group = "Team")
+@Autonomous(name = "Test Robot 4962 - auto test_blue", group = "Concept")
 //@Disabled
-public class TestRobot4962_auto extends LinearOpMode {
+public class TestRobot4962_auto_blue extends LinearOpMode {
 
 	// Get the robot hardware
 	Hardware4962 robot  = new Hardware4962();
@@ -145,20 +144,21 @@ public class TestRobot4962_auto extends LinearOpMode {
 		/*  start of code that does stuff
 		 */
 
+		//DriveOnHeadingReverse(yawPIDResult,0,36);
+		//robot.StopDriving();
+//		sleep(10000);
 
-
-		// Drive parallel to the ramp and then turn parallel to the wall at the first beacon.
-
-		DriveOnHeading(yawPIDResult,0,3);
-		TurnToHeading(yawPIDResult, -45., 2.0);
-        DriveOnHeading(yawPIDResult,-45,43);
+		DriveOnHeadingReverse(yawPIDResult,0,3);
+		TurnToHeading(yawPIDResult, 45., 2.0);
+        DriveOnHeadingReverse(yawPIDResult,45,43);
+		robot.StopDriving();
+		sleep(1000);
         TurnToHeading(yawPIDResult, 0., 2.0);
-
-		// Drive forward until we see red
-
-		robot.Drive(0.15,0.15);
+		robot.StopDriving();
+		sleep(1000);
+		robot.Drive(-0.15,-0.15);
 		readColor();
-		while(!colorIsRed()) {
+		while(!colorIsBlue()) {
 			telemetry.addData("red","red = " + colorIsRed());
 			telemetry.addData("blue","blue = " + colorIsBlue());
 			telemetry.update();
@@ -166,68 +166,71 @@ public class TestRobot4962_auto extends LinearOpMode {
 		}
 		sleep(500);
 		robot.StopDriving();
-
-		// extend and retract button pusher
-
-		robot.button.setPosition(0.7);
-		sleep(4000);
+		robot.button.setPosition(0.4);
+		sleep(2000);
 		robot.button.setPosition(0.0);
 		sleep(1000);
 
-		// drive toward second beacon parallel to the wall
-
-		DriveOnHeading(yawPIDResult,-1,30);
-
-		// slow down and look for the beacon
-
-		robot.Drive(0.15,0.15);
+		DriveOnHeadingReverse(yawPIDResult,1,32);
+		robot.Drive(-0.15,-0.15);
 		readColor();
-		while(!colorIsRed()) {
+		while(!colorIsBlue()) {
 			telemetry.addData("red","red = " + colorIsRed());
 			telemetry.addData("blue","blue = " + colorIsBlue());
 			telemetry.update();
 			readColor();
 		}
-		//sleep(300);
 
-
-
-		telemetry.addData("b1","driving to button");
-		telemetry.update();
 		robot.StopDriving();
-		telemetry.addData("b2","pushing button");
-		telemetry.update();
-
-		// push the correct button
-
-		robot.button.setPosition(0.7);
-		sleep(4000);
-		telemetry.addData("b3","done with button");
-		telemetry.update();
+		robot.button.setPosition(.4);
+		sleep(2000);
 		robot.button.setPosition(0.0);
-		sleep(1000);
-
-		// turn with back of robot towards the center vortex
-
-		TurnToHeading(yawPIDResult, -45., 2.0);
-
-		// drive in reverse to hit the ball
-
-		DriveOnHeadingReverse(yawPIDResult,-45,53);
+sleep (1000);
+		TurnToHeading(yawPIDResult, 45., 2.0);
+		DriveOnHeading(yawPIDResult,45,55);
 		robot.StopDriving();
+		//DriveOnHeading(yawPIDResult,0,3);
+		//robot.StopDriving();
 
+/*
+// 		sleep(1000);
+		TurnToHeading(yawPIDResult, 180., 2.0);
+		sleep(1000);
+		TurnToHeading(yawPIDResult, -90., 2.0);
+		sleep(1000);
+		TurnToHeading(yawPIDResult, 0., 2.0);
+		sleep(1000);
+		DriveOnHeading(yawPIDResult,0,24);
+ */
+		robot.StopDriving();
+		/*
+
+
+		double right = 0.1;
+		double left = 0.1;
+		robot.Drive(right,left);
+
+		while (robot.odsSensor.getLightDetected() < 0.2) {
+			telemetry.addData("Normal", robot.odsSensor.getLightDetected());
+			telemetry.update();
+			idle();
+		}
+		*/
+/*
+		robot.StopDriving();
+		while (1>0) {
+			readColor();
+			telemetry.addData("red","red = " + colorIsRed());
+			telemetry.addData("blue","blue = " + colorIsBlue());
+			telemetry.update();
+		}
+		*/
 
 	}
-
-
-	// read the color from the I2C Modern Robotics Color Sensor
 
 	public void readColor(){
 		colorCcache = colorCreader.read(0x04, 1);
 	}
-
-
-	// return true if the color is a shade of red
 
 	boolean colorIsRed() {
 		if ((colorCcache[0] & 0xFF) == 10 ||
@@ -236,9 +239,6 @@ public class TestRobot4962_auto extends LinearOpMode {
 		}
 		else return (false);
 	}
-
-	// return true if the color is a shade of blue
-
 	boolean colorIsBlue() {
 		if ((colorCcache[0] & 0xFF) == 2 ||
 				(colorCcache[0] & 0xFF) == 3) {
@@ -246,12 +246,9 @@ public class TestRobot4962_auto extends LinearOpMode {
 		} else return (false);
 	}
 
-
 	public double limit(double a) {
 		return Math.min(Math.max(a, MIN_MOTOR_OUTPUT_VALUE), MAX_MOTOR_OUTPUT_VALUE);
 	}
-
-	// Turn toward an exact heading using the naxV PID controller.
 
 	public void TurnToHeading(navXPIDController.PIDResult yawPIDResult, double heading, double maxTimeSeconds) {
 		try {
@@ -293,9 +290,6 @@ public class TestRobot4962_auto extends LinearOpMode {
 		}
 
 	}
-
-	// Drive on an exact heading using the navX PID controller and encoders
-
 	public void DriveOnHeading(navXPIDController.PIDResult yawPIDResult, double heading, double distanceInches) {
 
 		// calculate encoder counts for distance
@@ -349,7 +343,6 @@ public class TestRobot4962_auto extends LinearOpMode {
 		}
 	}
 
-	// drive on a heading in reverse using the naxV PID controller and encoders
 
 	public void DriveOnHeadingReverse(navXPIDController.PIDResult yawPIDResult, float heading, float distanceInches) {
 
@@ -393,6 +386,7 @@ public class TestRobot4962_auto extends LinearOpMode {
 					telemetry.addData("Output", df.format(yawPIDResult.getOutput()));
 					telemetry.addData("RevEnc:", robot.leftfrontMotor.getCurrentPosition());
 					telemetry.addData("EncStart:", startEncCount);
+					telemetry.update();
 				} else {
 			        /* A timeout occurred */
 					Log.w("navXDriveStraightOp", "Yaw PID waitForNewUpdate() TIMEOUT.");

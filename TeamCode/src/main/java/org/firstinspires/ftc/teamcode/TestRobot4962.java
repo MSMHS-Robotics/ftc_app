@@ -6,16 +6,18 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  *
  */
-@TeleOp(name = "Test Robot 4962", group = "Concept")
-//@Disabled
+@Autonomous(name = "Test Robot 4962", group = "Concept")
+@Disabled
 public class TestRobot4962 extends LinearOpMode {
 
 
