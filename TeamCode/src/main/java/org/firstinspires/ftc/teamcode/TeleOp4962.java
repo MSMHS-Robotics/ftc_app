@@ -14,11 +14,11 @@ import com.qualcomm.robotcore.util.Range;
 /**
  *
  */
-@TeleOp(name = "TeleOp Tank 4962", group = "TeleOp")
+@TeleOp(name = "TeleOp 4962a", group = "TeleOp")
 //@Disabled
 public class TeleOp4962 extends LinearOpMode {
 
-    Hardware4962 robot= new Hardware4962();		// this is our hardware class
+	Hardware4962 robot= new Hardware4962();		// this is our hardware class
 
 	@Override
 	public void runOpMode() throws InterruptedException {
@@ -31,24 +31,25 @@ public class TeleOp4962 extends LinearOpMode {
 		// wait for the start button to be pressed.
 		waitForStart();
 
+		int encoderCountFront = 0;
+		int encoderCountBack = 0;
+
 		while (opModeIsActive()) {
 		 /*
-		 * Gamepad 1 controls the motors via the left stick
+		 * Gamepad 1 controls the motors via the left and right stick
 		 */
 
-			// throttle: left_stick_y ranges from -1 to 1, where -1 is full up, and
-			// 1 is full down
-			// direction: left_stick_x ranges from -1 to 1, where -1 is full left
-			// and 1 is full right
-			//float throttle = -gamepad1.left_stick_y;
-			//float direction = gamepad1.left_stick_x;
-			//float right = throttle + direction;
-			//float left = throttle - direction;
 			float left = gamepad1.left_stick_y;
 			float right = gamepad1.right_stick_y;
 			boolean intakeIn = gamepad1.left_bumper;
 			boolean intakeOut = gamepad1.right_bumper;
 			float elevatorPower = gamepad2.right_stick_y;
+			boolean kickme = gamepad2.y;
+			boolean shootme = gamepad2.right_bumper;
+			double shootoff = gamepad2.right_trigger;
+			boolean launchme = gamepad2.left_bumper;
+			double nudgeme = gamepad2.left_trigger;
+
 
 			// clip the right/left values so that the values never exceed +/- 1
 			right = Range.clip(right, -1, 1);
@@ -67,16 +68,44 @@ public class TeleOp4962 extends LinearOpMode {
 			if (!intakeIn && !intakeOut){
 				intakePower =0;
 			}
+			if (kickme) {
+				robot.kicker.setPosition(0);
+			} else {
+				robot.kicker.setPosition(0.59);
+			}
+			//robot.shooter.setPower(0.9);
+			if (shootme) {
+				robot.ShooterSpeed(0.55);
+			}
+			if (shootoff > 0.5){
+				robot.ShooterSpeed(0);
+			}
+			if (launchme) {
+				robot.launch.setPosition(0.05);
+			} else {
+				robot.launch.setPosition(0.31);
+			}
+			if (nudgeme > 0.5) {
+				robot.launch.setPosition(0.16);
+			}
 			// write the values to the motors
 			robot.Drive(left,right);
 
 			robot.intakeMotor.setPower(intakePower);
 			robot.elevatorMotor.setPower(elevatorPower);
 
+			// get RPM
+
+			int encoderFrontDiff = robot.frontshooterMotor.getCurrentPosition() - encoderCountFront;
+			int encoderBackDiff = robot.backshooterMotor.getCurrentPosition() - encoderCountBack;
+			encoderCountFront = robot.frontshooterMotor.getCurrentPosition();
+			encoderCountBack = robot.backshooterMotor.getCurrentPosition();
 			telemetry.addData("Text", "*** Robot Data***");
 			telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
 			telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
 			telemetry.addData("elevator", "e pwr = " + String.format("%.2f", elevatorPower));
+			//telemetry.addData("shooter RPM","enc cnt F B = " +  encoderFrontDiff + "/" + encoderBackDiff);
+			telemetry.addData("shooter","enc cnt F B = " +  robot.frontshooterMotor.getCurrentPosition() + "/" + robot.backshooterMotor.getCurrentPosition());
 			telemetry.update();
 			idle();
 		}

@@ -62,7 +62,7 @@ public class TestRobot4962_auto extends LinearOpMode {
 	private final double MAX_MOTOR_OUTPUT_VALUE = 1.0;
 
 	// These are the PID tuning values. We just use the proportional part of their code
-	private final double YAW_PID_P = 0.01; // this might change depending on if we are turning or
+	private final double YAW_PID_P = 0.005; // this might change depending on if we are turning or
 											// going straight
 	private final double YAW_PID_I = 0.0;
 	private final double YAW_PID_D = 0.0;
@@ -118,7 +118,7 @@ public class TestRobot4962_auto extends LinearOpMode {
 
 		// Make sure the navX is ready to be used.
 
-		while ( !calibration_complete ) {
+		while ( !calibration_complete && opModeIsActive()) {
             /* navX-Micro Calibration completes automatically ~15 seconds after it is
             powered on, as long as the device is still.  To handle the case where the
             navX-Micro has not been able to calibrate successfully, hold off using
@@ -151,38 +151,38 @@ public class TestRobot4962_auto extends LinearOpMode {
 
 		DriveOnHeading(yawPIDResult,0,3);
 		TurnToHeading(yawPIDResult, -45., 2.0);
-        DriveOnHeading(yawPIDResult,-45,43);
+        DriveOnHeading(yawPIDResult,-45,45);
         TurnToHeading(yawPIDResult, 0., 2.0);
 
 		// Drive forward until we see red
 
-		robot.Drive(0.15,0.15);
+		robot.Drive(0.1,0.1);
 		readColor();
-		while(!colorIsRed()) {
+		while(!colorIsRed() && opModeIsActive()) {
 			telemetry.addData("red","red = " + colorIsRed());
 			telemetry.addData("blue","blue = " + colorIsBlue());
 			telemetry.update();
 			readColor();
 		}
-		sleep(500);
+		sleep(250);
 		robot.StopDriving();
 
 		// extend and retract button pusher
 
 		robot.button.setPosition(0.7);
-		sleep(4000);
+		sleep(3000);
 		robot.button.setPosition(0.0);
 		sleep(1000);
 
 		// drive toward second beacon parallel to the wall
 
-		DriveOnHeading(yawPIDResult,-1,30);
+		DriveOnHeading(yawPIDResult,-2,28);
 
 		// slow down and look for the beacon
 
-		robot.Drive(0.15,0.15);
+		robot.Drive(0.1,0.1);
 		readColor();
-		while(!colorIsRed()) {
+		while(!colorIsRed() && opModeIsActive()) {
 			telemetry.addData("red","red = " + colorIsRed());
 			telemetry.addData("blue","blue = " + colorIsBlue());
 			telemetry.update();

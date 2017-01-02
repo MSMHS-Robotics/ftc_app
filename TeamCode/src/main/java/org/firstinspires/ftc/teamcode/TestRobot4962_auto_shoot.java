@@ -1,6 +1,6 @@
 /**
  *
- * Simple arcade drive for two motors and nothing else
+ * Auto using 4962 Hardware
  *
  */
 
@@ -12,7 +12,6 @@ import com.kauailabs.navx.ftc.AHRS;
 import com.kauailabs.navx.ftc.navXPIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
@@ -25,9 +24,9 @@ import java.text.DecimalFormat;
 /**
  *
  */
-@Autonomous(name = "Test Robot 4962 - auto test_blue", group = "Concept")
+@Autonomous(name = "Auto Red Shoot Only", group = "Team")
 //@Disabled
-public class TestRobot4962_auto_blue extends LinearOpMode {
+public class TestRobot4962_auto_shoot extends LinearOpMode {
 
 	// Get the robot hardware
 	Hardware4962 robot  = new Hardware4962();
@@ -42,6 +41,18 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 
 	I2cDevice colorC;
 	I2cDeviceSynch colorCreader;
+
+
+	// Modern Robotics Range Sensor
+
+	byte[] range1Cache; //The read will return an array of bytes. They are stored in this variable
+
+	I2cAddr RANGE1ADDRESS = new I2cAddr(0x14); //Default I2C address for MR Range (7-bit)
+	public static final int RANGE1_REG_START = 0x04; //Register to start reading
+	public static final int RANGE1_READ_LENGTH = 2; //Number of byte to read
+
+	public I2cDevice RANGE1;
+	public I2cDeviceSynch RANGE1Reader;
 
 
 	// navX - values for initialization (from example code)
@@ -62,7 +73,7 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 
 	// These are the PID tuning values. We just use the proportional part of their code
 	private final double YAW_PID_P = 0.01; // this might change depending on if we are turning or
-											// going straight
+	// going straight
 	private final double YAW_PID_I = 0.0;
 	private final double YAW_PID_D = 0.0;
 
@@ -81,6 +92,12 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 		colorC = hardwareMap.i2cDevice.get("color sensor");
 		colorCreader = new I2cDeviceSynchImpl(colorC, new I2cAddr(0x1e), false);
 		colorCreader.engage();
+
+		// Modern Robotics Range Sensor setup
+
+		RANGE1 = hardwareMap.i2cDevice.get("range");
+		RANGE1Reader = new I2cDeviceSynchImpl(RANGE1, RANGE1ADDRESS, false);
+		RANGE1Reader.engage();
 
 		// navX setup
 
@@ -106,7 +123,7 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 		// color sensor initilization
 
 		colorCreader.write8(3, 1);    //Set the mode of the color sensor to passive (0=active)
-										// passive = turn off the LED
+		// passive = turn off the LED
 
 		// intake not running.
 
@@ -144,21 +161,42 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 		/*  start of code that does stuff
 		 */
 
-		//DriveOnHeadingReverse(yawPIDResult,0,36);
-		//robot.StopDriving();
-//		sleep(10000);
 
-		DriveOnHeadingReverse(yawPIDResult,0,3);
-		TurnToHeading(yawPIDResult, 45., 2.0);
-        DriveOnHeadingReverse(yawPIDResult,45,45);
+		DriveOnHeadingReverse(yawPIDResult,0,24);
+		TurnToHeading(yawPIDResult, -50., 2.0);
+		DriveOnHeadingReverse(yawPIDResult,-50,2);
 		robot.StopDriving();
 		sleep(1000);
-        TurnToHeading(yawPIDResult, 0., 2.0);
-		robot.StopDriving();
+
+		robot.launch.setPosition(0.31);
+		robot.ShooterSpeed(0.55);
+		sleep(2000);
+		robot.launch.setPosition(0.05);
 		sleep(1000);
-		robot.Drive(-0.1,-0.1);
+		robot.launch.setPosition(0.31);
+		sleep(3000);
+		robot.launch.setPosition(0.16);
+		sleep(400);
+		robot.launch.setPosition(0.31);
+		sleep(2000);
+		robot.launch.setPosition(0.05);
+		sleep(1000);
+		robot.launch.setPosition(0.31);
+		robot.ShooterSpeed(0);
+		stop();
+
+		// Drive parallel to the ramp and then turn parallel to the wall at the first beacon.
+
+		DriveOnHeading(yawPIDResult,0,3);
+		TurnToHeading(yawPIDResult, -45., 2.0);
+		DriveOnHeading(yawPIDResult,-45,43);
+		TurnToHeading(yawPIDResult, 0., 2.0);
+
+		// Drive forward until we see red
+
+		robot.Drive(0.15,0.15);
 		readColor();
-		while(!colorIsBlue() && opModeIsActive()) {
+		while(!colorIsRed() && opModeIsActive()) {
 			telemetry.addData("red","red = " + colorIsRed());
 			telemetry.addData("blue","blue = " + colorIsBlue());
 			telemetry.update();
@@ -166,71 +204,69 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 		}
 		sleep(500);
 		robot.StopDriving();
-		robot.button.setPosition(0.4);
-		sleep(2000);
+
+		// extend and retract button pusher
+
+		robot.button.setPosition(0.7);
+		sleep(4000);
 		robot.button.setPosition(0.0);
 		sleep(1000);
 
-		DriveOnHeadingReverse(yawPIDResult,2,29);
-		robot.Drive(-0.1,-0.1);
+		// drive toward second beacon parallel to the wall
+
+		//DriveOnHeading(yawPIDResult,-1,30);
+		DriveAlongWall(11,30);
+
+		// slow down and look for the beacon
+
+		robot.Drive(0.15,0.15);
 		readColor();
-		while(!colorIsBlue() && opModeIsActive()) {
+		while(!colorIsRed() && opModeIsActive()) {
 			telemetry.addData("red","red = " + colorIsRed());
 			telemetry.addData("blue","blue = " + colorIsBlue());
 			telemetry.update();
 			readColor();
 		}
+		//sleep(300);
 
+
+
+		telemetry.addData("b1","driving to button");
+		telemetry.update();
 		robot.StopDriving();
-		robot.button.setPosition(.4);
-		sleep(2000);
+		telemetry.addData("b2","pushing button");
+		telemetry.update();
+
+		// push the correct button
+
+		robot.button.setPosition(0.7);
+		sleep(4000);
+		telemetry.addData("b3","done with button");
+		telemetry.update();
 		robot.button.setPosition(0.0);
-sleep (1000);
-		TurnToHeading(yawPIDResult, 45., 2.0);
-		DriveOnHeading(yawPIDResult,45,55);
-		robot.StopDriving();
-		//DriveOnHeading(yawPIDResult,0,3);
-		//robot.StopDriving();
-
-/*
-// 		sleep(1000);
-		TurnToHeading(yawPIDResult, 180., 2.0);
 		sleep(1000);
-		TurnToHeading(yawPIDResult, -90., 2.0);
-		sleep(1000);
-		TurnToHeading(yawPIDResult, 0., 2.0);
-		sleep(1000);
-		DriveOnHeading(yawPIDResult,0,24);
- */
+
+		// turn with back of robot towards the center vortex
+
+		TurnToHeading(yawPIDResult, -45., 2.0);
+
+		// drive in reverse to hit the ball
+
+		DriveOnHeadingReverse(yawPIDResult,-45,53);
 		robot.StopDriving();
-		/*
 
-
-		double right = 0.1;
-		double left = 0.1;
-		robot.Drive(right,left);
-
-		while (robot.odsSensor.getLightDetected() < 0.2) {
-			telemetry.addData("Normal", robot.odsSensor.getLightDetected());
-			telemetry.update();
-			idle();
-		}
-		*/
-/*
-		robot.StopDriving();
-		while (1>0) {
-			readColor();
-			telemetry.addData("red","red = " + colorIsRed());
-			telemetry.addData("blue","blue = " + colorIsBlue());
-			telemetry.update();
-		}
-		*/
 
 	}
+
+
+	// read the color from the I2C Modern Robotics Color Sensor
 
 	public void readColor(){
 		colorCcache = colorCreader.read(0x04, 1);
 	}
+
+
+	// return true if the color is a shade of red
 
 	boolean colorIsRed() {
 		if ((colorCcache[0] & 0xFF) == 10 ||
@@ -239,6 +275,9 @@ sleep (1000);
 		}
 		else return (false);
 	}
+
+	// return true if the color is a shade of blue
+
 	boolean colorIsBlue() {
 		if ((colorCcache[0] & 0xFF) == 2 ||
 				(colorCcache[0] & 0xFF) == 3) {
@@ -246,9 +285,12 @@ sleep (1000);
 		} else return (false);
 	}
 
+
 	public double limit(double a) {
 		return Math.min(Math.max(a, MIN_MOTOR_OUTPUT_VALUE), MAX_MOTOR_OUTPUT_VALUE);
 	}
+
+	// Turn toward an exact heading using the naxV PID controller.
 
 	public void TurnToHeading(navXPIDController.PIDResult yawPIDResult, double heading, double maxTimeSeconds) {
 		try {
@@ -290,6 +332,9 @@ sleep (1000);
 		}
 
 	}
+
+	// Drive on an exact heading using the navX PID controller and encoders
+
 	public void DriveOnHeading(navXPIDController.PIDResult yawPIDResult, double heading, double distanceInches) {
 
 		// calculate encoder counts for distance
@@ -343,6 +388,7 @@ sleep (1000);
 		}
 	}
 
+	// drive on a heading in reverse using the naxV PID controller and encoders
 
 	public void DriveOnHeadingReverse(navXPIDController.PIDResult yawPIDResult, float heading, float distanceInches) {
 
@@ -386,7 +432,6 @@ sleep (1000);
 					telemetry.addData("Output", df.format(yawPIDResult.getOutput()));
 					telemetry.addData("RevEnc:", robot.leftfrontMotor.getCurrentPosition());
 					telemetry.addData("EncStart:", startEncCount);
-					telemetry.update();
 				} else {
 			        /* A timeout occurred */
 					Log.w("navXDriveStraightOp", "Yaw PID waitForNewUpdate() TIMEOUT.");
@@ -396,5 +441,37 @@ sleep (1000);
 		catch(InterruptedException ex) {
 			Thread.currentThread().interrupt();
 		}
+	}
+
+	public void DriveAlongWall (double distanceFromWall, double distanceToTarget) {
+
+		// calculate encoder counts for distance
+		float wheelDiameter = 4; // inches
+		float wheelCirc = wheelDiameter* (float) 3.14159;
+		float encoderTicksPerRotation = 1120;
+		float ticksPerInch =encoderTicksPerRotation/wheelCirc;
+		int ticksToTravel=(int) (distanceToTarget*ticksPerInch);
+
+		// check motor position
+		int startEncCount=robot.leftfrontMotor.getCurrentPosition();
+
+		// set base drive speed
+		double drive_speed = 0.5;
+		double gain = 2.0;
+
+		while ((robot.leftfrontMotor.getCurrentPosition()-startEncCount) < ticksToTravel &&
+				!Thread.currentThread().isInterrupted()) {
+			// get range from the target, which is the wall
+			range1Cache = RANGE1Reader.read(RANGE1_REG_START, RANGE1_READ_LENGTH);
+			double range = (double) (range1Cache[0] & 0xFF);
+			double correction = 0.01*(range-distanceFromWall)*gain;
+			robot.Drive(drive_speed-correction,drive_speed+correction);
+			telemetry.addData("Range:", range);
+			telemetry.addData("left", drive_speed - correction);
+			telemetry.addData("right", drive_speed + correction);
+
+			telemetry.update();
+		}
+
 	}
 }

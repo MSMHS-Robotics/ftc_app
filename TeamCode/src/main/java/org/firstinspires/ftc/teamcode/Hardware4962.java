@@ -15,6 +15,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  *
  */
 
+/* adb setup.  Connect phone to USB. Connect computer wifi to Wifi Direct. In terminal type:
+1) adb usb
+2) adb tcpip 5555
+3) adb connect 192.168.49.1
+4) (unplug phone)
+5) adb connect 192.168.49.1
+ */
 public class Hardware4962 {
 
     /* Public OpMode members. */
@@ -24,7 +31,15 @@ public class Hardware4962 {
     public DcMotor leftbackMotor = null;
     public DcMotor intakeMotor = null;
     public DcMotor elevatorMotor = null;
+    public DcMotor frontshooterMotor = null;
+    public DcMotor backshooterMotor = null;
     public Servo button = null;
+    public Servo kicker = null;
+    public Servo launch = null;
+    public Servo wallfront = null;
+    public Servo wallback = null;
+
+
     public OpticalDistanceSensor odsSensor = null;
 
     /* local OpMode members. */
@@ -49,12 +64,30 @@ public class Hardware4962 {
         leftbackMotor = hwMap.dcMotor.get("motor left back");
         intakeMotor = hwMap.dcMotor.get("motor intake");
         elevatorMotor = hwMap.dcMotor.get("motor elevator");
+        frontshooterMotor = hwMap.dcMotor.get("shooter front");
+        backshooterMotor = hwMap.dcMotor.get("shooter back");
         odsSensor = hwMap.opticalDistanceSensor.get("ods");
         button = hwMap.servo.get("blue");
+        kicker = hwMap.servo.get("kicker");
+        launch = hwMap.servo.get("launch");
+        wallfront = hwMap.servo.get("wallfront");
+        wallback = hwMap.servo.get("wallback");
 
         rightfrontMotor.setDirection(DcMotor.Direction.REVERSE);
         rightbackMotor.setDirection(DcMotor.Direction.REVERSE);
-        button.setPosition(0);
+        backshooterMotor.setDirection(DcMotor.Direction.REVERSE);
+        frontshooterMotor.setMaxSpeed(3000);
+        backshooterMotor.setMaxSpeed(3000);
+        frontshooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backshooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        button.setPosition(0); //  110/255 is out
+        kicker.setPosition(0.59);
+        //kicker.setPosition(0);
+        launch.setPosition(0.31);
+        wallfront.setPosition(0.1);
+        wallback.setPosition(0);
+
+
         // Set all motors to zero power
 
         StopDriving();
@@ -88,6 +121,10 @@ public class Hardware4962 {
         leftbackMotor.setPowerFloat();
         rightfrontMotor.setPowerFloat();
         rightbackMotor.setPowerFloat();
+    }
+    public void ShooterSpeed(double speed) {
+        frontshooterMotor.setPower(speed);
+        backshooterMotor.setPower(speed);
     }
 
 
