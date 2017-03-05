@@ -25,7 +25,7 @@ import java.text.DecimalFormat;
 /**
  *
  */
-@Autonomous(name = "Test Robot 4962 - auto test_blue", group = "Concept")
+@Autonomous(name = "Auto BLue Button Shoot", group = "Concept")
 //@Disabled
 public class TestRobot4962_auto_blue extends LinearOpMode {
 
@@ -155,7 +155,7 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 		sleep(1000);
         TurnToHeading(yawPIDResult, 0., 2.0);
 		robot.StopDriving();
-		sleep(1000);
+		//sleep(1000);
 		robot.Drive(-0.1,-0.1);
 		readColor();
 		while(!colorIsBlue() && opModeIsActive()) {
@@ -164,14 +164,19 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 			telemetry.update();
 			readColor();
 		}
-		sleep(500);
+		sleep(100);
 		robot.StopDriving();
 		robot.button.setPosition(0.4);
-		sleep(2000);
+		sleep(1000);
 		robot.button.setPosition(0.0);
 		sleep(1000);
 
-		DriveOnHeadingReverse(yawPIDResult,2,29);
+		// extend wall follower
+
+		robot.wallback.setPosition(0);
+		sleep(500);
+
+		DriveOnHeadingReverse(yawPIDResult,4,25);
 		robot.Drive(-0.1,-0.1);
 		readColor();
 		while(!colorIsBlue() && opModeIsActive()) {
@@ -180,15 +185,37 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 			telemetry.update();
 			readColor();
 		}
+		//sleep(100);
 
 		robot.StopDriving();
 		robot.button.setPosition(.4);
 		sleep(2000);
 		robot.button.setPosition(0.0);
 sleep (1000);
+
+		// retract wall follower
+		robot.wallback.setPosition(0.6);
+
 		TurnToHeading(yawPIDResult, 45., 2.0);
-		DriveOnHeading(yawPIDResult,45,55);
+		robot.ShooterSpeed(0.55);
+		DriveOnHeading(yawPIDResult,45,22);
+		TurnToHeading(yawPIDResult, -135., 2.0);
+		DriveOnHeading(yawPIDResult,-135,-6);
 		robot.StopDriving();
+
+		robot.launch.setPosition(0.31);
+
+		sleep(1000);
+		robot.launch.setPosition(0.05);
+		sleep(1000);
+		robot.launch.setPosition(0.31);
+		sleep(2000);
+		robot.launch.setPosition(0.05);
+		sleep(500);
+		robot.launch.setPosition(0.31);
+		robot.ShooterSpeed(0);
+		DriveOnHeadingReverse(yawPIDResult,-135,29);
+
 		//DriveOnHeading(yawPIDResult,0,3);
 		//robot.StopDriving();
 

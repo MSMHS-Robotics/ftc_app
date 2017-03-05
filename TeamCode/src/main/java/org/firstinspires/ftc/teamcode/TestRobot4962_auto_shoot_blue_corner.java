@@ -24,9 +24,9 @@ import java.text.DecimalFormat;
 /**
  *
  */
-@Autonomous(name = "Auto Red Shoot Only", group = "Team")
+@Autonomous(name = "Auto Blue Shoot Only Corner", group = "Team")
 //@Disabled
-public class TestRobot4962_auto_shoot extends LinearOpMode {
+public class TestRobot4962_auto_shoot_blue_corner extends LinearOpMode {
 
 	// Get the robot hardware
 	Hardware4962 robot  = new Hardware4962();
@@ -161,10 +161,10 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 		/*  start of code that does stuff
 		 */
 
-		sleep(10000);
-		DriveOnHeadingReverse(yawPIDResult,0,18);
-		TurnToHeading(yawPIDResult, -50., 2.0);
-		DriveOnHeadingReverse(yawPIDResult,-50,4);
+        //sleep(10000);
+		DriveOnHeadingReverse(yawPIDResult,0,12);
+		TurnToHeading(yawPIDResult, 45., 2.0);
+		DriveOnHeadingReverse(yawPIDResult,45,2);
 		robot.StopDriving();
 		sleep(1000);
 
@@ -183,6 +183,8 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 		sleep(1000);
 		robot.launch.setPosition(0.31);
 		robot.ShooterSpeed(0);
+		TurnToHeading(yawPIDResult, -75., 2.0);
+		DriveOnHeading(yawPIDResult,-75,52);
 		stop();
 
 		// Drive parallel to the ramp and then turn parallel to the wall at the first beacon.

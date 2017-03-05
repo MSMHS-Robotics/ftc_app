@@ -84,8 +84,8 @@ public class Hardware4962 {
         kicker.setPosition(0.59);
         //kicker.setPosition(0);
         launch.setPosition(0.31);
-        wallfront.setPosition(0.1);
-        wallback.setPosition(0);
+        wallfront.setPosition(0);
+        wallback.setPosition(0.6);
 
 
         // Set all motors to zero power
@@ -123,8 +123,8 @@ public class Hardware4962 {
         rightbackMotor.setPowerFloat();
     }
     public void ShooterSpeed(double speed) {
-        frontshooterMotor.setPower(speed);
-        backshooterMotor.setPower(speed);
+        frontshooterMotor.setPower(speed + .15 );
+        backshooterMotor.setPower(speed-.15);
     }
 
 

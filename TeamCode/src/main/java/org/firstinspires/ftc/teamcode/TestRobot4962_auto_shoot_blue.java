@@ -161,7 +161,7 @@ public class TestRobot4962_auto_shoot_blue extends LinearOpMode {
 		/*  start of code that does stuff
 		 */
 
-
+sleep(10000);
 		DriveOnHeadingReverse(yawPIDResult,0,12);
 		TurnToHeading(yawPIDResult, 55., 2.0);
 		DriveOnHeadingReverse(yawPIDResult,55,2);

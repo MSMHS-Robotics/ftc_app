@@ -151,13 +151,12 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
         DriveOnHeading(yawPIDResult,-45,45);
         TurnToHeading(yawPIDResult, -2., 2.0);
 
-		// extend wall follower
 
-		robot.wallfront.setPosition(0.8);
 
 		// Drive forward until we see red
 
 		robot.Drive(0.1,0.1);
+		sleep(100);
 		readColor();
 		while(!colorIsRed() && opModeIsActive()) {
 			telemetry.addData("red","red = " + colorIsRed());
@@ -165,15 +164,20 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 			telemetry.update();
 			readColor();
 		}
-		sleep(250);
+		sleep(300);
 		robot.StopDriving();
 
 		// extend and retract button pusher
 
-		robot.button.setPosition(0.7);
-		sleep(3000);
+		robot.button.setPosition(0.4);
+		sleep(1000);
 		robot.button.setPosition(0.0);
 		sleep(1000);
+
+		// extend wall follower
+
+		robot.wallfront.setPosition(0.5);
+		sleep(500);
 
 		// drive toward second beacon parallel to the wall
 
@@ -182,6 +186,8 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 		// slow down and look for the beacon
 
 		robot.Drive(0.1,0.1);
+		telemetry.addData("b1","driving to button");
+		telemetry.update();
 		readColor();
 		while(!colorIsRed() && opModeIsActive()) {
 			telemetry.addData("red","red = " + colorIsRed());
@@ -189,35 +195,31 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 			telemetry.update();
 			readColor();
 		}
-		//sleep(300);
+		sleep(100);
 
-
-
-		telemetry.addData("b1","driving to button");
-		telemetry.update();
 		robot.StopDriving();
 		telemetry.addData("b2","pushing button");
 		telemetry.update();
 
 		// push the correct button
 
-		robot.button.setPosition(0.7);
-		sleep(4000);
+		robot.button.setPosition(0.4);
+		sleep(1000);
 		telemetry.addData("b3","done with button");
 		telemetry.update();
 		robot.button.setPosition(0.0);
 		sleep(1000);
 
 		// retract wall follower
-		robot.wallfront.setPosition(0.1);
+		robot.wallfront.setPosition(0);
 
 		// turn with back of robot towards the center vortex
 		robot.ShooterSpeed(0.55);
-		TurnToHeading(yawPIDResult, -45., 2.0);
+		TurnToHeading(yawPIDResult, -50., 2.0);
 
 		// drive in reverse to hit the ball
 
-		DriveOnHeadingReverse(yawPIDResult,-45,12);
+		DriveOnHeadingReverse(yawPIDResult,-50,13);
 		robot.StopDriving();
 		robot.launch.setPosition(0.31);
 
@@ -226,15 +228,11 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 		sleep(1000);
 		robot.launch.setPosition(0.31);
 		sleep(2000);
-		robot.launch.setPosition(0.16);
-		sleep(400);
-		robot.launch.setPosition(0.31);
-		sleep(2000);
 		robot.launch.setPosition(0.05);
 		sleep(500);
 		robot.launch.setPosition(0.31);
 		robot.ShooterSpeed(0);
-		DriveOnHeadingReverse(yawPIDResult,-45,39);
+		DriveOnHeadingReverse(yawPIDResult,-45,30);
 
 
 	}
