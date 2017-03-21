@@ -123,8 +123,12 @@ public class Hardware4962 {
         rightbackMotor.setPowerFloat();
     }
     public void ShooterSpeed(double speed) {
-        frontshooterMotor.setPower(speed + .15 );
-        backshooterMotor.setPower(speed-.15);
+        frontshooterMotor.setPower(speed);
+        backshooterMotor.setPower(speed);
+    }
+    public void ShooterSpeed(double speedfront, double speedback) {
+        frontshooterMotor.setPower(speedfront);
+        backshooterMotor.setPower(speedback);
     }
 
 

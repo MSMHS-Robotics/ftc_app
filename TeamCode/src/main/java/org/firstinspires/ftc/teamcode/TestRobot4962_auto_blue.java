@@ -25,7 +25,7 @@ import java.text.DecimalFormat;
 /**
  *
  */
-@Autonomous(name = "Auto BLue Button Shoot", group = "Concept")
+@Autonomous(name = "Auto Blue Button Shoot", group = "Concept")
 //@Disabled
 public class TestRobot4962_auto_blue extends LinearOpMode {
 
@@ -148,13 +148,18 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 		//robot.StopDriving();
 //		sleep(10000);
 
-		DriveOnHeadingReverse(yawPIDResult,0,3);
+		DriveOnHeadingReverse(yawPIDResult,0,3,0.2);
 		TurnToHeading(yawPIDResult, 45., 2.0);
-        DriveOnHeadingReverse(yawPIDResult,45,45);
+        DriveOnHeadingReverse(yawPIDResult,45, (float) 37);
 		robot.StopDriving();
-		sleep(1000);
+		//sleep(1000);
         TurnToHeading(yawPIDResult, 0., 2.0);
+		TurnToHeading(yawPIDResult, 0., 1.0);
 		robot.StopDriving();
+		// extend wall follower
+
+		robot.wallback.setPosition(0);
+		sleep(500);
 		//sleep(1000);
 		robot.Drive(-0.1,-0.1);
 		readColor();
@@ -169,14 +174,14 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 		robot.button.setPosition(0.4);
 		sleep(1000);
 		robot.button.setPosition(0.0);
-		sleep(1000);
+		sleep(500);
 
 		// extend wall follower
 
-		robot.wallback.setPosition(0);
-		sleep(500);
+		//robot.wallback.setPosition(0);
+		//sleep(500);
 
-		DriveOnHeadingReverse(yawPIDResult,4,25);
+		DriveOnHeadingReverse(yawPIDResult,2,12,0.2);
 		robot.Drive(-0.1,-0.1);
 		readColor();
 		while(!colorIsBlue() && opModeIsActive()) {
@@ -189,18 +194,18 @@ public class TestRobot4962_auto_blue extends LinearOpMode {
 
 		robot.StopDriving();
 		robot.button.setPosition(.4);
-		sleep(2000);
+		sleep(1000);
 		robot.button.setPosition(0.0);
-sleep (1000);
+sleep (500);
 
 		// retract wall follower
 		robot.wallback.setPosition(0.6);
 
 		TurnToHeading(yawPIDResult, 45., 2.0);
-		robot.ShooterSpeed(0.55);
+		robot.ShooterSpeed(0.8,0.4);
 		DriveOnHeading(yawPIDResult,45,22);
 		TurnToHeading(yawPIDResult, -135., 2.0);
-		DriveOnHeading(yawPIDResult,-135,-6);
+		DriveOnHeadingReverse(yawPIDResult,-135,5);
 		robot.StopDriving();
 
 		robot.launch.setPosition(0.31);
@@ -214,7 +219,7 @@ sleep (1000);
 		sleep(500);
 		robot.launch.setPosition(0.31);
 		robot.ShooterSpeed(0);
-		DriveOnHeadingReverse(yawPIDResult,-135,29);
+		DriveOnHeadingReverse(yawPIDResult,-135,23);
 
 		//DriveOnHeading(yawPIDResult,0,3);
 		//robot.StopDriving();
@@ -277,13 +282,14 @@ sleep (1000);
 		return Math.min(Math.max(a, MIN_MOTOR_OUTPUT_VALUE), MAX_MOTOR_OUTPUT_VALUE);
 	}
 
+
 	public void TurnToHeading(navXPIDController.PIDResult yawPIDResult, double heading, double maxTimeSeconds) {
 		try {
 			long starttime= System.currentTimeMillis();
 
 			TARGET_ANGLE_DEGREES = heading;
 			int DEVICE_TIMEOUT_MS = 500;
-			yawPIDController.setPID(0.02, YAW_PID_I, YAW_PID_D);
+			yawPIDController.setPID(0.002, YAW_PID_I, YAW_PID_D);
 			yawPIDController.setSetpoint(TARGET_ANGLE_DEGREES);
 			DecimalFormat df = new DecimalFormat("#.##");
 
@@ -297,8 +303,8 @@ sleep (1000);
 						telemetry.update();
 					} else {
 						double output = yawPIDResult.getOutput();
-						if (output > 0 && output < 0.25) { output = 0.25; }
-						if (output < 0 && output > -0.25) { output = -0.25; }
+						if (output > 0 && output < 0.15) { output = 0.15; }
+						if (output < 0 && output > -0.15) { output = -0.15; }
 						robot.Drive(output, -output);
 						telemetry.addData("PIDOutput", df.format(output) + ", " +
 								df.format(-output));
@@ -317,12 +323,22 @@ sleep (1000);
 		}
 
 	}
+
+	// Drive on an exact heading using the navX PID controller and encoders
+
+
 	public void DriveOnHeading(navXPIDController.PIDResult yawPIDResult, double heading, double distanceInches) {
+		DriveOnHeading(yawPIDResult, heading, distanceInches, 0.25);
+	}
+
+
+	public void DriveOnHeading(navXPIDController.PIDResult yawPIDResult, double heading, double distanceInches, double power) {
 
 		// calculate encoder counts for distance
 		float wheelDiameter = 4; // inches
 		float wheelCirc = wheelDiameter* (float) 3.14159;
-		float encoderTicksPerRotation = 1120;
+		//float encoderTicksPerRotation = 1120;
+		float encoderTicksPerRotation = 560;
 		float ticksPerInch =encoderTicksPerRotation/wheelCirc;
 		int ticksToTravel=(int) (distanceInches*ticksPerInch);
 
@@ -330,8 +346,8 @@ sleep (1000);
 		int startEncCount=robot.leftfrontMotor.getCurrentPosition();
 		int DEVICE_TIMEOUT_MS = 500;
         /* Drive straight forward at 1/2 of full drive speed */
-		double drive_speed = 0.5;
-		yawPIDController.setPID(0.05, YAW_PID_I, YAW_PID_D);
+		double drive_speed = power;
+		yawPIDController.setPID(0.003, YAW_PID_I, YAW_PID_D);
 		yawPIDController.setSetpoint(heading);
 		DecimalFormat df = new DecimalFormat("#.##");
 		try {
@@ -344,11 +360,11 @@ sleep (1000);
 								df.format(drive_speed));
 					} else {
 						double output = yawPIDResult.getOutput();
-						if (output < -0.5) {
-							output = -0.5;
+						if (output < -0.15) {
+							output = -0.15;
 						}
-						if (output > 0.5) {
-							output = 0.5;
+						if (output > 0.15) {
+							output = 0.15;
 						}
 						robot.Drive(drive_speed + output, drive_speed - output);
 						telemetry.addData("PIDOutput", df.format(limit(-drive_speed - output)) + ", " +
@@ -370,13 +386,17 @@ sleep (1000);
 		}
 	}
 
+	// drive on a heading in reverse using the naxV PID controller and encoders
 
 	public void DriveOnHeadingReverse(navXPIDController.PIDResult yawPIDResult, float heading, float distanceInches) {
+		DriveOnHeadingReverse(yawPIDResult, heading, distanceInches, 0.25);
+	}
+	public void DriveOnHeadingReverse(navXPIDController.PIDResult yawPIDResult, float heading, float distanceInches, double power) {
 
 		// calculate encoder counts for distance
 		float wheelDiameter = 4; // inches
 		float wheelCirc = wheelDiameter* (float) 3.14159;
-		float encoderTicksPerRotation = 1120;
+		float encoderTicksPerRotation = 560;
 		float ticksPerInch =encoderTicksPerRotation/wheelCirc;
 		int ticksToTravel=(int) (distanceInches*ticksPerInch);
 
@@ -384,8 +404,8 @@ sleep (1000);
 		int startEncCount=robot.leftfrontMotor.getCurrentPosition();
 		int DEVICE_TIMEOUT_MS = 500;
         /* Drive straight forward at 1/2 of full drive speed */
-		double drive_speed = 0.5;
-		yawPIDController.setPID(0.05, YAW_PID_I, YAW_PID_D);
+		double drive_speed = power;
+		yawPIDController.setPID(0.003, YAW_PID_I, YAW_PID_D);
 		yawPIDController.setSetpoint(heading);
 		DecimalFormat df = new DecimalFormat("#.##");
 		try {
@@ -398,11 +418,11 @@ sleep (1000);
 								df.format(drive_speed));
 					} else {
 						double output = yawPIDResult.getOutput();
-						if (output < -0.5) {
-							output = -0.5;
+						if (output < -0.15) {
+							output = -0.15;
 						}
-						if (output > 0.5) {
-							output = 0.5;
+						if (output > 0.15) {
+							output = 0.15;
 						}
 						robot.Drive(-drive_speed + output, -drive_speed - output);
 
@@ -413,7 +433,6 @@ sleep (1000);
 					telemetry.addData("Output", df.format(yawPIDResult.getOutput()));
 					telemetry.addData("RevEnc:", robot.leftfrontMotor.getCurrentPosition());
 					telemetry.addData("EncStart:", startEncCount);
-					telemetry.update();
 				} else {
 			        /* A timeout occurred */
 					Log.w("navXDriveStraightOp", "Yaw PID waitForNewUpdate() TIMEOUT.");
@@ -424,4 +443,6 @@ sleep (1000);
 			Thread.currentThread().interrupt();
 		}
 	}
+
+
 }

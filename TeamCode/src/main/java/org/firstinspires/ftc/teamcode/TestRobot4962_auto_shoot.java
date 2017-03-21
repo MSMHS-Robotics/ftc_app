@@ -162,9 +162,9 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 		 */
 
 		sleep(10000);
-		DriveOnHeadingReverse(yawPIDResult,0,18);
+		DriveOnHeadingReverse(yawPIDResult,0,18,0.25);
 		TurnToHeading(yawPIDResult, -50., 2.0);
-		DriveOnHeadingReverse(yawPIDResult,-50,4);
+		DriveOnHeadingReverse(yawPIDResult,-50,4,0.25);
 		robot.StopDriving();
 		sleep(1000);
 
@@ -184,77 +184,6 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 		robot.launch.setPosition(0.31);
 		robot.ShooterSpeed(0);
 		stop();
-
-		// Drive parallel to the ramp and then turn parallel to the wall at the first beacon.
-
-		DriveOnHeading(yawPIDResult,0,3);
-		TurnToHeading(yawPIDResult, -45., 2.0);
-		DriveOnHeading(yawPIDResult,-45,43);
-		TurnToHeading(yawPIDResult, 0., 2.0);
-
-		// Drive forward until we see red
-
-		robot.Drive(0.15,0.15);
-		readColor();
-		while(!colorIsRed() && opModeIsActive()) {
-			telemetry.addData("red","red = " + colorIsRed());
-			telemetry.addData("blue","blue = " + colorIsBlue());
-			telemetry.update();
-			readColor();
-		}
-		sleep(500);
-		robot.StopDriving();
-
-		// extend and retract button pusher
-
-		robot.button.setPosition(0.7);
-		sleep(4000);
-		robot.button.setPosition(0.0);
-		sleep(1000);
-
-		// drive toward second beacon parallel to the wall
-
-		//DriveOnHeading(yawPIDResult,-1,30);
-		DriveAlongWall(11,30);
-
-		// slow down and look for the beacon
-
-		robot.Drive(0.15,0.15);
-		readColor();
-		while(!colorIsRed() && opModeIsActive()) {
-			telemetry.addData("red","red = " + colorIsRed());
-			telemetry.addData("blue","blue = " + colorIsBlue());
-			telemetry.update();
-			readColor();
-		}
-		//sleep(300);
-
-
-
-		telemetry.addData("b1","driving to button");
-		telemetry.update();
-		robot.StopDriving();
-		telemetry.addData("b2","pushing button");
-		telemetry.update();
-
-		// push the correct button
-
-		robot.button.setPosition(0.7);
-		sleep(4000);
-		telemetry.addData("b3","done with button");
-		telemetry.update();
-		robot.button.setPosition(0.0);
-		sleep(1000);
-
-		// turn with back of robot towards the center vortex
-
-		TurnToHeading(yawPIDResult, -45., 2.0);
-
-		// drive in reverse to hit the ball
-
-		DriveOnHeadingReverse(yawPIDResult,-45,53);
-		robot.StopDriving();
-
 
 	}
 
@@ -298,7 +227,7 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 
 			TARGET_ANGLE_DEGREES = heading;
 			int DEVICE_TIMEOUT_MS = 500;
-			yawPIDController.setPID(0.02, YAW_PID_I, YAW_PID_D);
+			yawPIDController.setPID(0.005, YAW_PID_I, YAW_PID_D);
 			yawPIDController.setSetpoint(TARGET_ANGLE_DEGREES);
 			DecimalFormat df = new DecimalFormat("#.##");
 
@@ -312,8 +241,8 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 						telemetry.update();
 					} else {
 						double output = yawPIDResult.getOutput();
-						if (output > 0 && output < 0.25) { output = 0.25; }
-						if (output < 0 && output > -0.25) { output = -0.25; }
+						if (output > 0 && output < 0.17) { output = 0.17; }
+						if (output < 0 && output > -0.17) { output = -0.17; }
 						robot.Drive(output, -output);
 						telemetry.addData("PIDOutput", df.format(output) + ", " +
 								df.format(-output));
@@ -335,12 +264,19 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 
 	// Drive on an exact heading using the navX PID controller and encoders
 
+
 	public void DriveOnHeading(navXPIDController.PIDResult yawPIDResult, double heading, double distanceInches) {
+		DriveOnHeading(yawPIDResult, heading, distanceInches, 0.25);
+	}
+
+
+	public void DriveOnHeading(navXPIDController.PIDResult yawPIDResult, double heading, double distanceInches, double power) {
 
 		// calculate encoder counts for distance
 		float wheelDiameter = 4; // inches
 		float wheelCirc = wheelDiameter* (float) 3.14159;
-		float encoderTicksPerRotation = 1120;
+		//float encoderTicksPerRotation = 1120;
+		float encoderTicksPerRotation = 560;
 		float ticksPerInch =encoderTicksPerRotation/wheelCirc;
 		int ticksToTravel=(int) (distanceInches*ticksPerInch);
 
@@ -348,8 +284,8 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 		int startEncCount=robot.leftfrontMotor.getCurrentPosition();
 		int DEVICE_TIMEOUT_MS = 500;
         /* Drive straight forward at 1/2 of full drive speed */
-		double drive_speed = 0.5;
-		yawPIDController.setPID(0.05, YAW_PID_I, YAW_PID_D);
+		double drive_speed = power;
+		yawPIDController.setPID(0.002, YAW_PID_I, YAW_PID_D);
 		yawPIDController.setSetpoint(heading);
 		DecimalFormat df = new DecimalFormat("#.##");
 		try {
@@ -362,11 +298,11 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 								df.format(drive_speed));
 					} else {
 						double output = yawPIDResult.getOutput();
-						if (output < -0.5) {
-							output = -0.5;
+						if (output < -power) {
+							output = -power;
 						}
-						if (output > 0.5) {
-							output = 0.5;
+						if (output > power) {
+							output = power;
 						}
 						robot.Drive(drive_speed + output, drive_speed - output);
 						telemetry.addData("PIDOutput", df.format(limit(-drive_speed - output)) + ", " +
@@ -391,11 +327,14 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 	// drive on a heading in reverse using the naxV PID controller and encoders
 
 	public void DriveOnHeadingReverse(navXPIDController.PIDResult yawPIDResult, float heading, float distanceInches) {
+		DriveOnHeadingReverse(yawPIDResult, heading, distanceInches, 0.25);
+	}
+	public void DriveOnHeadingReverse(navXPIDController.PIDResult yawPIDResult, float heading, float distanceInches, double power) {
 
 		// calculate encoder counts for distance
 		float wheelDiameter = 4; // inches
 		float wheelCirc = wheelDiameter* (float) 3.14159;
-		float encoderTicksPerRotation = 1120;
+		float encoderTicksPerRotation = 560;
 		float ticksPerInch =encoderTicksPerRotation/wheelCirc;
 		int ticksToTravel=(int) (distanceInches*ticksPerInch);
 
@@ -403,8 +342,8 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 		int startEncCount=robot.leftfrontMotor.getCurrentPosition();
 		int DEVICE_TIMEOUT_MS = 500;
         /* Drive straight forward at 1/2 of full drive speed */
-		double drive_speed = 0.5;
-		yawPIDController.setPID(0.05, YAW_PID_I, YAW_PID_D);
+		double drive_speed = power;
+		yawPIDController.setPID(0.002, YAW_PID_I, YAW_PID_D);
 		yawPIDController.setSetpoint(heading);
 		DecimalFormat df = new DecimalFormat("#.##");
 		try {
@@ -417,11 +356,11 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 								df.format(drive_speed));
 					} else {
 						double output = yawPIDResult.getOutput();
-						if (output < -0.5) {
-							output = -0.5;
+						if (output < -power) {
+							output = -power;
 						}
-						if (output > 0.5) {
-							output = 0.5;
+						if (output > power) {
+							output = power;
 						}
 						robot.Drive(-drive_speed + output, -drive_speed - output);
 
@@ -441,37 +380,5 @@ public class TestRobot4962_auto_shoot extends LinearOpMode {
 		catch(InterruptedException ex) {
 			Thread.currentThread().interrupt();
 		}
-	}
-
-	public void DriveAlongWall (double distanceFromWall, double distanceToTarget) {
-
-		// calculate encoder counts for distance
-		float wheelDiameter = 4; // inches
-		float wheelCirc = wheelDiameter* (float) 3.14159;
-		float encoderTicksPerRotation = 1120;
-		float ticksPerInch =encoderTicksPerRotation/wheelCirc;
-		int ticksToTravel=(int) (distanceToTarget*ticksPerInch);
-
-		// check motor position
-		int startEncCount=robot.leftfrontMotor.getCurrentPosition();
-
-		// set base drive speed
-		double drive_speed = 0.5;
-		double gain = 2.0;
-
-		while ((robot.leftfrontMotor.getCurrentPosition()-startEncCount) < ticksToTravel &&
-				!Thread.currentThread().isInterrupted()) {
-			// get range from the target, which is the wall
-			range1Cache = RANGE1Reader.read(RANGE1_REG_START, RANGE1_READ_LENGTH);
-			double range = (double) (range1Cache[0] & 0xFF);
-			double correction = 0.01*(range-distanceFromWall)*gain;
-			robot.Drive(drive_speed-correction,drive_speed+correction);
-			telemetry.addData("Range:", range);
-			telemetry.addData("left", drive_speed - correction);
-			telemetry.addData("right", drive_speed + correction);
-
-			telemetry.update();
-		}
-
 	}
 }

@@ -146,12 +146,16 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 
 		// Drive parallel to the ramp and then turn parallel to the wall at the first beacon.
 
-		DriveOnHeading(yawPIDResult,0,3);
+		DriveOnHeading(yawPIDResult,0,3,0.2);
 		TurnToHeading(yawPIDResult, -45., 2.0);
-        DriveOnHeading(yawPIDResult,-45,45);
-        TurnToHeading(yawPIDResult, -2., 2.0);
+        DriveOnHeading(yawPIDResult,-45,40.5);
+        TurnToHeading(yawPIDResult, -2., 3.0);
+		robot.StopDriving();
 
+		// extend wall follower
 
+		robot.wallfront.setPosition(0.5);
+		sleep(500);
 
 		// Drive forward until we see red
 
@@ -181,7 +185,7 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 
 		// drive toward second beacon parallel to the wall
 
-		DriveOnHeading(yawPIDResult,-4,28);
+		DriveOnHeading(yawPIDResult,-4,20,.2);
 
 		// slow down and look for the beacon
 
@@ -214,12 +218,14 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 		robot.wallfront.setPosition(0);
 
 		// turn with back of robot towards the center vortex
-		robot.ShooterSpeed(0.55);
-		TurnToHeading(yawPIDResult, -50., 2.0);
+		robot.ShooterSpeed(0.8,0.4);
+		TurnToHeading(yawPIDResult, -50., 1.0);
+		DriveOnHeadingReverse(yawPIDResult,-50,3);
+		TurnToHeading(yawPIDResult, -50., 1.0);
 
 		// drive in reverse to hit the ball
 
-		DriveOnHeadingReverse(yawPIDResult,-50,13);
+		DriveOnHeadingReverse(yawPIDResult,-50,17);
 		robot.StopDriving();
 		robot.launch.setPosition(0.31);
 
@@ -232,7 +238,8 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 		sleep(500);
 		robot.launch.setPosition(0.31);
 		robot.ShooterSpeed(0);
-		DriveOnHeadingReverse(yawPIDResult,-45,30);
+		TurnToHeading(yawPIDResult, -60., 1.0);
+		DriveOnHeadingReverse(yawPIDResult,-60,30);
 
 
 	}
@@ -277,7 +284,7 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 
 			TARGET_ANGLE_DEGREES = heading;
 			int DEVICE_TIMEOUT_MS = 500;
-			yawPIDController.setPID(0.02, YAW_PID_I, YAW_PID_D);
+			yawPIDController.setPID(0.002, YAW_PID_I, YAW_PID_D);
 			yawPIDController.setSetpoint(TARGET_ANGLE_DEGREES);
 			DecimalFormat df = new DecimalFormat("#.##");
 
@@ -291,8 +298,8 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 						telemetry.update();
 					} else {
 						double output = yawPIDResult.getOutput();
-						if (output > 0 && output < 0.25) { output = 0.25; }
-						if (output < 0 && output > -0.25) { output = -0.25; }
+						if (output > 0 && output < 0.15) { output = 0.15; }
+						if (output < 0 && output > -0.15) { output = -0.15; }
 						robot.Drive(output, -output);
 						telemetry.addData("PIDOutput", df.format(output) + ", " +
 								df.format(-output));
@@ -314,12 +321,19 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 
 	// Drive on an exact heading using the navX PID controller and encoders
 
+
 	public void DriveOnHeading(navXPIDController.PIDResult yawPIDResult, double heading, double distanceInches) {
+		DriveOnHeading(yawPIDResult, heading, distanceInches, 0.25);
+	}
+
+
+	public void DriveOnHeading(navXPIDController.PIDResult yawPIDResult, double heading, double distanceInches, double power) {
 
 		// calculate encoder counts for distance
 		float wheelDiameter = 4; // inches
 		float wheelCirc = wheelDiameter* (float) 3.14159;
-		float encoderTicksPerRotation = 1120;
+		//float encoderTicksPerRotation = 1120;
+		float encoderTicksPerRotation = 560;
 		float ticksPerInch =encoderTicksPerRotation/wheelCirc;
 		int ticksToTravel=(int) (distanceInches*ticksPerInch);
 
@@ -327,8 +341,8 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 		int startEncCount=robot.leftfrontMotor.getCurrentPosition();
 		int DEVICE_TIMEOUT_MS = 500;
         /* Drive straight forward at 1/2 of full drive speed */
-		double drive_speed = 0.5;
-		yawPIDController.setPID(0.05, YAW_PID_I, YAW_PID_D);
+		double drive_speed = power;
+		yawPIDController.setPID(0.003, YAW_PID_I, YAW_PID_D);
 		yawPIDController.setSetpoint(heading);
 		DecimalFormat df = new DecimalFormat("#.##");
 		try {
@@ -341,11 +355,11 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 								df.format(drive_speed));
 					} else {
 						double output = yawPIDResult.getOutput();
-						if (output < -0.5) {
-							output = -0.5;
+						if (output < -0.15) {
+							output = -0.15;
 						}
-						if (output > 0.5) {
-							output = 0.5;
+						if (output > 0.15) {
+							output = 0.15;
 						}
 						robot.Drive(drive_speed + output, drive_speed - output);
 						telemetry.addData("PIDOutput", df.format(limit(-drive_speed - output)) + ", " +
@@ -370,11 +384,14 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 	// drive on a heading in reverse using the naxV PID controller and encoders
 
 	public void DriveOnHeadingReverse(navXPIDController.PIDResult yawPIDResult, float heading, float distanceInches) {
+	    DriveOnHeadingReverse(yawPIDResult, heading, distanceInches, 0.25);
+	}
+	public void DriveOnHeadingReverse(navXPIDController.PIDResult yawPIDResult, float heading, float distanceInches, double power) {
 
 		// calculate encoder counts for distance
 		float wheelDiameter = 4; // inches
 		float wheelCirc = wheelDiameter* (float) 3.14159;
-		float encoderTicksPerRotation = 1120;
+		float encoderTicksPerRotation = 560;
 		float ticksPerInch =encoderTicksPerRotation/wheelCirc;
 		int ticksToTravel=(int) (distanceInches*ticksPerInch);
 
@@ -382,8 +399,8 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 		int startEncCount=robot.leftfrontMotor.getCurrentPosition();
 		int DEVICE_TIMEOUT_MS = 500;
         /* Drive straight forward at 1/2 of full drive speed */
-		double drive_speed = 0.5;
-		yawPIDController.setPID(0.05, YAW_PID_I, YAW_PID_D);
+		double drive_speed = power;
+		yawPIDController.setPID(0.003, YAW_PID_I, YAW_PID_D);
 		yawPIDController.setSetpoint(heading);
 		DecimalFormat df = new DecimalFormat("#.##");
 		try {
@@ -396,11 +413,11 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 								df.format(drive_speed));
 					} else {
 						double output = yawPIDResult.getOutput();
-						if (output < -0.5) {
-							output = -0.5;
+						if (output < -0.15) {
+							output = -0.15;
 						}
-						if (output > 0.5) {
-							output = 0.5;
+						if (output > 0.15) {
+							output = 0.15;
 						}
 						robot.Drive(-drive_speed + output, -drive_speed - output);
 
@@ -421,4 +438,6 @@ public class TestRobot4962_auto_red_shoot extends LinearOpMode {
 			Thread.currentThread().interrupt();
 		}
 	}
+
+
 }

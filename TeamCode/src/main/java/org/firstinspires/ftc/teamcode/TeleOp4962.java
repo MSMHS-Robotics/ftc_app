@@ -49,11 +49,19 @@ public class TeleOp4962 extends LinearOpMode {
 			double shootoff = gamepad2.right_trigger;
 			boolean launchme = gamepad2.left_bumper;
 			double nudgeme = gamepad2.left_trigger;
+			double turbo = gamepad1.left_trigger;
+			boolean shootlong = gamepad2.x;
+			boolean sidebutton = gamepad1.x;
 
 
 			// clip the right/left values so that the values never exceed +/- 1
 			right = Range.clip(right, -1, 1);
 			left = Range.clip(left, -1, 1);
+			if(turbo > 0.5){
+
+				right = right * (float)0.7;
+				left =left * (float)0.7;
+			}
 
 			// scale the joystick value to make it easier to control
 			// the robot more precisely at slower speeds.
@@ -75,7 +83,11 @@ public class TeleOp4962 extends LinearOpMode {
 			}
 			//robot.shooter.setPower(0.9);
 			if (shootme) {
-				robot.ShooterSpeed(0.55);
+				robot.ShooterSpeed(0.8,0.4); // backspin
+				//robot.ShooterSpeed(0.55);
+			}
+			if (shootlong) {
+				robot.ShooterSpeed(.6,.9);
 			}
 			if (shootoff > 0.5){
 				robot.ShooterSpeed(0);
@@ -87,6 +99,12 @@ public class TeleOp4962 extends LinearOpMode {
 			}
 			if (nudgeme > 0.5) {
 				robot.launch.setPosition(0.16);
+			}
+			if (sidebutton) {
+				robot.button.setPosition(0.4);
+			}
+			else {
+				robot.button.setPosition(0.0);
 			}
 			// write the values to the motors
 			robot.Drive(left,right);

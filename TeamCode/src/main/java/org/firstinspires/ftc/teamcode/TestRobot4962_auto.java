@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import java.text.DecimalFormat;
 
@@ -27,7 +28,7 @@ import java.text.DecimalFormat;
  *
  */
 @Autonomous(name = "Test Robot 4962 - auto test_red", group = "Team")
-//@Disabled
+@Disabled
 public class TestRobot4962_auto extends LinearOpMode {
 
 	// Get the robot hardware
