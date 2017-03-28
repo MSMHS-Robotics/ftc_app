@@ -162,9 +162,9 @@ public class TestRobot4962_auto_shootonly_corner extends LinearOpMode {
 		 */
 
 		//sleep(10000);
-		DriveOnHeadingReverse(yawPIDResult,0,16);
-		TurnToHeading(yawPIDResult, -45., 2.0);
-		DriveOnHeadingReverse(yawPIDResult,-45,10);
+		DriveOnHeadingReverse(yawPIDResult,0,12);
+		TurnToHeading(yawPIDResult, -40., 2.0);
+		DriveOnHeadingReverse(yawPIDResult,-40,7);
 		robot.StopDriving();
 		sleep(1000);
 

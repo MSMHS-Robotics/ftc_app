@@ -204,8 +204,8 @@ sleep (500);
 		TurnToHeading(yawPIDResult, 45., 2.0);
 		robot.ShooterSpeed(0.8,0.4);
 		DriveOnHeading(yawPIDResult,45,22);
-		TurnToHeading(yawPIDResult, -135., 2.0);
-		DriveOnHeadingReverse(yawPIDResult,-135,5);
+		TurnToHeading(yawPIDResult, -120., 2.0);
+		DriveOnHeadingReverse(yawPIDResult,-120,5);
 		robot.StopDriving();
 
 		robot.launch.setPosition(0.31);
