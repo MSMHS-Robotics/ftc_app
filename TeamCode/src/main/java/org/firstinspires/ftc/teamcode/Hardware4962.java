@@ -78,6 +78,10 @@ public class Hardware4962 {
         backshooterMotor.setDirection(DcMotor.Direction.REVERSE);
         frontshooterMotor.setMaxSpeed(3000);
         backshooterMotor.setMaxSpeed(3000);
+        rightfrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftfrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightbackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftbackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontshooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backshooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         button.setPosition(0); //  110/255 is out
